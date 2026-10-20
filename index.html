@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Number Brain</title>
+<style>
+body{background:#10152b;color:white;font-family:Arial;text-align:center;padding:15px}
+h1{color:#70f0c0}.box{background:#1c2545;padding:15px;border-radius:15px;margin:12px auto;max-width:450px}
+#target{font-size:40px;color:#70f0c0;margin:15px}
+#grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+button{padding:15px 3px;border-radius:10px;background:#29385c;color:white;border:1px solid #7181a5;font-size:18px}
+button.sel{background:#16866e;border-color:#70f0c0}
+.action{background:#70f0c0;color:#10152b;margin:5px;font-size:15px}
+#levels{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+</style>
+</head>
+<body>
+<h1>🧠 NUMBER BRAIN</h1>
+<p>সংখ্যা বেছে লক্ষ্য পূরণ করো!</p>
+<div class="box">LEVEL <b id="lv">1</b>　 SCORE <b id="sc">0</b><br><br>লক্ষ্য সংখ্যা<div id="target">100</div><div id="grid"></div><p>যোগফল: <b id="sum">0</b></p><p id="msg">সংখ্যা বেছে নাও</p><button class="action" onclick="check()">যাচাই করো ✓</button><button class="action" onclick="reset()">আবার শুরু</button><button class="action" onclick="hint()">ইঙ্গিত 💡</button><p id="hint"></p></div>
+<div class="box"><h3>লেভেল</h3><div id="levels"></div></div>
+<script>
+const targets=[100,100,150,200,250,300,350,400,450,500,600,700,800,900,1000,1200,1500,1800,2000,2500,3000,3500,4000,5000,6000];
+let lv=1,sc=0,un=+(localStorage.nbUn||1),nums=[],sel=[];
+function start(n){lv=n;sel=[];let t=targets[lv-1];nums=[];let left=t;while(left>0&&nums.length<15){let v=Math.min(left,Math.floor(Math.random()*Math.min(50,left))+1);nums.push(v);left-=v}while(nums.length<16)nums.push(Math.floor(Math.random()*Math.max(10,t/2))+1);nums.sort(()=>Math.random()-.5);document.getElementById('lv').textContent=lv;document.getElementById('target').textContent=t;document.getElementById('msg').textContent='সংখ্যা বেছে নাও';document.getElementById('hint').textContent='';render();levels();update()}
+function render(){let g=document.getElementById('grid');g.innerHTML='';nums.forEach((v,i)=>{let b=document.createElement('button');b.textContent=v;if(sel.includes(i))b.className='sel';b.onclick=()=>{sel=sel.includes(i)?sel.filter(x=>x!==i):[...sel,i];render();update()};g.appendChild(b)})}
+function update(){document.getElementById('sum').textContent=sel.reduce((a,i)=>a+nums[i],0);document.getElementById('sc').textContent=sc}
+function reset(){sel=[];render();update();document.getElementById('msg').textContent='আবার শুরু হয়েছে'}
+function check(){let s=sel.reduce((a,i)=>a+nums[i],0);if(s!==targets[lv-1]){document.getElementById('msg').textContent=s>targets[lv-1]?'যোগফল বেশি! কিছু সংখ্যা বাদ দাও':'আরও সংখ্যা বেছে নাও';return}sc+=lv*10;document.getElementById('msg').textContent='সঠিক! দারুণ! 🎉';if(lv===un&&un<25){un++;localStorage.nbUn=un}levels();update();if(lv<25){let b=document.createElement('button');b.className='action';b.textContent='পরের লেভেল →';b.onclick=()=>start(Math.min(lv+1,un));document.getElementById('msg').appendChild(b)}}
+function hint(){let t=targets[lv-1];for(let i=0;i<nums.length;i++)for(let j=i+1;j<nums.length;j++)if(nums[i]+nums[j]===t){document.getElementById('hint').textContent='ইঙ্গিত: '+nums[i]+' + '+nums[j]+' = '+t;return}document.getElementById('hint').textContent='কয়েকটি সংখ্যা যোগ করে লক্ষ্য পূরণ করো'}
+function levels(){let d=document.getElementById('levels');d.innerHTML='';targets.forEach((t,i)=>{let b=document.createElement('button');b.textContent=i+1;b.disabled=i+1>un;b.onclick=()=>start(i+1);d.appendChild(b)})}
+start(1);
+</script>
+</body>
+</html>
